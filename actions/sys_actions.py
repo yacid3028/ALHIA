@@ -111,6 +111,25 @@ def editar_codigo(nombre_archivo, instruccion):
 
     return f"Archivo editado correctamente:\n{ruta}"
 
+
+def eliminar_archivo(ruta):
+    try:
+        if os.path.exists(ruta):
+            os.remove(ruta)
+            return f"Archivo eliminado: {ruta}"
+        else:
+            return "El archivo no existe"
+    except Exception as e:
+        return f"Error: {e}"
+    
+
+def crear_archivo(ruta, contenido=""):
+    try:
+        with open(ruta, "w", encoding="utf-8") as f:
+            f.write(contenido)
+        return f"Archivo creado: {ruta}"
+    except Exception as e:
+        return f"Error al crear archivo: {e}"
         # leer y eliminar mails, resumen de noticias, clima, etc.
         #  se pueden agregar como acciones ejecutables 
         # responder leer whatsapp, telegram, etc. con la api de cada uno 
