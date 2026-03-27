@@ -4,7 +4,7 @@ import os
 import winreg
 
 from config import BASE_DIR
-from core.ai import analizar_codigo, detectar_imports
+from core.ai import analizar_codigo
 from utils.helpers import buscar_archivo
 
 def buscar_en_path(nombre):
@@ -85,7 +85,6 @@ def backup_archivo(ruta):
 
 def editar_codigo(nombre_archivo, instruccion):
 
-    # 🔥 Caso 1: es ruta completa
     if os.path.exists(nombre_archivo):
         ruta = nombre_archivo.replace("\\", "/")
 
@@ -112,24 +111,54 @@ def editar_codigo(nombre_archivo, instruccion):
     return f"Archivo editado correctamente:\n{ruta}"
 
 
-def eliminar_archivo(ruta):
-    try:
-        if os.path.exists(ruta):
-            os.remove(ruta)
-            return f"Archivo eliminado: {ruta}"
-        else:
-            return "El archivo no existe"
-    except Exception as e:
-        return f"Error: {e}"
-    
 
-def crear_archivo(ruta, contenido=""):
-    try:
+
+def ejecutar(data):
+
+    accion = data["accion"]
+
+    if accion == "eliminar_archivo":
+        resultado = buscar_archivo(data["parametro"])
+
+        if isinstance(resultado, list):
+            lista = "\n".join([f"{i+1}. {r}" for i, r in enumerate(resultado)])
+            return f"Encontré varios archivos:\n{lista}\nElige cuál eliminar."
+
+        elif resultado:
+            os.remove(resultado)
+            return f"Archivo eliminado: {resultado}"
+
+        else:
+            return "No encontré el archivo"
+
+    elif accion == "crear_carpeta":
+        ruta = os.path.join(os.path.expanduser("~\\OneDrive\\Desktop"), data["parametro"])
+        os.makedirs(ruta, exist_ok=True)
+        return f"Carpeta creada en : {ruta}"
+    
+    elif accion == "crear_archivo":
+        ruta = os.path.join(os.path.expanduser("~\\OneDrive\\Desktop"), data["parametro"])
         with open(ruta, "w", encoding="utf-8") as f:
-            f.write(contenido)
-        return f"Archivo creado: {ruta}"
-    except Exception as e:
-        return f"Error al crear archivo: {e}"
+            f.write("")
+        return f"Archivo creado en: {ruta}"
+
+    elif accion == "renombrar":
+        ruta = buscar_archivo(data["origen"])
+        if isinstance(ruta, list):
+            lista = "\n".join([f"{i+1}. {r}" for i, r in enumerate(ruta)])
+            return f"Hay varios archivos:\n{lista}\nElige cuál renombrar."
+
+        elif ruta:
+            nueva_ruta = os.path.join(os.path.dirname(ruta), data["nuevo"])
+            os.rename(ruta, nueva_ruta)
+            return f"Archivo renombrado a: {nueva_ruta}"
+
+        else:
+            return "No encontré el archivo"
+
+    return "Acción no válida"
+
+
         # leer y eliminar mails, resumen de noticias, clima, etc.
         #  se pueden agregar como acciones ejecutables 
         # responder leer whatsapp, telegram, etc. con la api de cada uno 

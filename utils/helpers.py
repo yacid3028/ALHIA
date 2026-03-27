@@ -7,17 +7,17 @@ load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-def buscar_archivo(nombre_archivo):
+def buscar_archivo(nombre):
     coincidencias = []
 
     for base in BASE_DIR:
         for root, dirs, files in os.walk(base):
             for file in files:
-                if file.lower() == nombre_archivo.lower():
-                    ruta_completa = os.path.join(root, file)
-                    coincidencias.append(ruta_completa)
+                if file.lower() == nombre.lower():
+                    ruta = os.path.join(root, file)
+                    coincidencias.append(ruta)
 
-    if len(coincidencias) == 0:
+    if not coincidencias:
         return None
 
     if len(coincidencias) == 1:
@@ -60,3 +60,4 @@ def limpiar_codigo(respuesta):
     codigo = codigo.replace("```", "")
 
     return codigo.strip()
+
